@@ -1,9 +1,10 @@
 const { User, Thought } = require('../models');
 
-module.exports = {
+const UserController = {
   // Get all 
   getUsers(req, res) {
     User.find({})
+      .sort({ _id: -1 })
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
@@ -53,3 +54,6 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 };
+
+
+module.exports = UserController;

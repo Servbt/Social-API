@@ -2,14 +2,15 @@ const { ObjectId } = require('mongoose').Types;
 const { thought, User } = require('../models');
 
 
-module.exports = {
-  getUsers(req, res) {
-    User.find()
-      .then(async (users) => {
-        const userObj = {
-          users
+const thoughtController = {
+  getThoughts(req, res) {
+    User.find({})
+      .sort({ _id: -1 })
+      .then(async (Thoughts) => {
+        const thoughtObj = {
+          Thoughts
         };
-        return res.json(userObj);
+        return res.json(thoughtObj);
       })
       .catch((err) => {
         console.log(err);
@@ -47,8 +48,8 @@ module.exports = {
         !user
           ? res.status(404).json({ message: 'No such user exists' })
           : User.findOneAndUpdate(
-              { users: req.params.userId },
-              { $pull: { users: req.params.userId } },
+              { Thoughts: req.params.userId },
+              { $pull: { Thoughts: req.params.userId } },
               { new: true }
             )
       )
@@ -100,3 +101,5 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 };
+
+module.exports = thoughtController;
