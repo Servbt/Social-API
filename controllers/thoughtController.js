@@ -1,105 +1,93 @@
 const { ObjectId } = require('mongoose').Types;
-const { thought, User } = require('../models');
-
+const { Thought, User } = require('../models');
 
 const thoughtController = {
+  // /api/thoughts
+
+  // get all thoughts
   getThoughts(req, res) {
-    User.find({})
+    Thought.find({})
       .sort({ _id: -1 })
-      .then(async (Thoughts) => {
-        const thoughtObj = {
-          Thoughts
-        };
-        return res.json(thoughtObj);
-      })
-      .catch((err) => {
+      .then(thoughtsData => res.json(thoughtsData))
+      .catch(err => {
         console.log(err);
-        return res.status(500).json(err);
-      });
-  },
-  // Get a single student
-  getSingleStudent(req, res) {
-    User.findOne({ _id: req.params.userId })
-      .select('-__v')
-      .lean()
-      .then(async (user) =>
-        !user
-          ? res.status(404).json({ message: 'No user with that ID' })
-          : res.json({
-              user,
-  
-            })
-      )
-      .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
-      });
-  },
-  // create a new student
-  createStudent(req, res) {
-    User.create(req.body)
-      .then((user) => res.json(user))
-      .catch((err) => res.status(500).json(err));
-  },
-  // Delete a student and remove them from the course
-  deleteStudent(req, res) {
-    User.findOneAndRemove({ _id: req.params.userId })
-      .then((user) =>
-        !user
-          ? res.status(404).json({ message: 'No such user exists' })
-          : User.findOneAndUpdate(
-              { Thoughts: req.params.userId },
-              { $pull: { Thoughts: req.params.userId } },
-              { new: true }
-            )
-      )
-      .then((user) =>
-        !user
-          ? res.status(404).json({
-              message: 'Student deleted, but no user found',
-            })
-          : res.json({ message: 'Student successfully deleted' })
-      )
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json(err);
+        res.sendStatus(400);
       });
   },
 
-  // Add an assignment to a student
-  addAssignment(req, res) {
-    console.log('You are adding an assignment');
-    console.log(req.body);
-    Student.findOneAndUpdate(
-      { _id: req.params.studentId },
-      { $addToSet: { assignments: req.body } },
-      { runValidators: true, new: true }
-    )
-      .then((student) =>
-        !student
-          ? res
-              .status(404)
-              .json({ message: 'No student found with that ID :(' })
-          : res.json(student)
-      )
-      .catch((err) => res.status(500).json(err));
+  // get one thoughts by id
+  getSingleThought({ parameterss }, res) {
+    Thought.findOne({ _id: params.id })
+      .sort({ _id: -1 })
+      .then(thoughtsData => {
+        if (!thoughtsData) {
+          res.status(404).json({ message: 'could not find thought through ID' });
+          return;
+        }
+        res.json(thoughtsData);
+      })
+      .catch(err => {
+        console.log(err);
+        res.sendStatus(400);
+      });
   },
-  // Remove assignment from a student
-  removeAssignment(req, res) {
-    Student.findOneAndUpdate(
-      { _id: req.params.studentId },
-      { $pull: { assignment: { assignmentId: req.params.assignmentId } } },
-      { runValidators: true, new: true }
-    )
-      .then((student) =>
-        !student
-          ? res
-              .status(404)
-              .json({ message: 'No student found with that ID :(' })
-          : res.json(student)
-      )
-      .catch((err) => res.status(500).json(err));
+
+  createThought({ body }, res) {
+    Thought.create(body)
+        .then(({ _id }) => {
+            return User.findOneAndUpdate(
+                { _id: body.userId },
+                { $push: { thoughts: _id } },
+                { new: true }
+            );
+        })
+        .then(dbThoughtData => {
+            if (!dbThoughtData) {
+                res.status(404).json({ message: 'could not find thought through ID' });
+                return;
+            }
+            res.json(dbThoughtData);
+        })
+        .catch(err => res.json(err));
+},
+
+  // update Thought by id
+  updateThought({ params, body }, res) {
+    Thought.findOneAndUpdate({ _id: params.id }, body, { new: true, runValidators: true })
+      .then(thoughtsData => {
+        if (!thoughtsData) {
+          res.status(404).json({ message: 'could not find thought through ID' });
+          return;
+        }
+        res.json(thoughtsData);
+      })
+      .catch(err => res.json(err));
   },
+
+  // delete thought by ID
+  deleteThought({ params }, res) {
+    Thought.findOneAndDelete({ _id: params.id })
+      .then(thoughtsData => {
+        if (!thoughtsData) {
+          res.status(404).json({ message: 'could not find thought through ID' });
+          return;
+        }
+        return User.findOneAndUpdate(
+          { _id: parmas.userId },
+          { $pull: { thoughts: params.Id } },
+          { new: true }
+        )
+      })
+      .then(userData => {
+        if (!userData) {
+          res.status(404).json({ message: 'could not find thought through ID' });
+          return;
+        }
+        res.json(userData);
+      })
+      .catch(err => res.json(err));
+  },
+
 };
 
-module.exports = thoughtController;
+module.exports = thoughtController
