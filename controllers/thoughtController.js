@@ -1,4 +1,3 @@
-const { ObjectId } = require('mongoose').Types;
 const { Thought, User } = require('../models');
 
 const thoughtController = {
@@ -16,7 +15,7 @@ const thoughtController = {
   },
 
   // get one thoughts by id
-  getSingleThought({ parameterss }, res) {
+  getSingleThought({ params }, res) {
     Thought.findOne({ _id: params.id })
       .sort({ _id: -1 })
       .then(thoughtsData => {
