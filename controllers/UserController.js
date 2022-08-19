@@ -3,12 +3,12 @@ const { User, Thought } = require('../models');
 module.exports = {
   // Get all 
   getUsers(req, res) {
-    User.find()
+    User.find({})
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
   // Get 
-  getSingleCourse(req, res) {
+  getSingleUser(req, res) {
     User.findOne({ _id: req.params.userId })
       .select('-__v')
       .then((user) =>
@@ -20,7 +20,7 @@ module.exports = {
   },
   // Create 
   createUser(req, res) {
-    Course.create(req.body)
+    User.create(req.body)
       .then((user) => res.json(user))
       .catch((err) => {
         console.log(err);
@@ -28,7 +28,7 @@ module.exports = {
       });
   },
   // Delete 
-  deleteCourse(req, res) {
+  deleteUser(req, res) {
     User.findOneAndDelete({ _id: req.params.userId })
       .then((user) =>
         !user
@@ -39,7 +39,7 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   // Update 
-  updateCourse(req, res) {
+  updateUser(req, res) {
     User.findOneAndUpdate(
       { _id: req.params.userId },
       { $set: req.body },

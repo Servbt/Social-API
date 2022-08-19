@@ -1,30 +1,13 @@
 const { ObjectId } = require('mongoose').Types;
 const { thought, User } = require('../models');
 
-const userCount = async () =>
-  User.aggregate([    
-    {
-  $match: { _id:ObjectId(userId) }
-},
-{
-  $group:{ 
-    _id:null,
-    user_count: {$count: {}}
-  }
-
-}
-])
-    .then((number) => numberOfUsers);
-
-
 
 module.exports = {
   getUsers(req, res) {
     User.find()
       .then(async (users) => {
         const userObj = {
-          users,
-          user_count: await userCount(),
+          users
         };
         return res.json(userObj);
       })
